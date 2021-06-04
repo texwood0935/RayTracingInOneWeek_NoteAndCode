@@ -1,6 +1,6 @@
 # Ray Tracing In One Week
 
-个人的渣翻（随缘翻，很多没翻完）以及笔记，[原网址](https://raytracing.github.io/books/RayTracingInOneWeekend.html)。原版英文其实十分简单，建议看原版。如有错误的地方，可以发邮件给俺，一起探讨探讨ヾ(≧▽≦*)o。俺的邮箱：liu_texwood5082@foxmail.com
+个人的渣翻（随缘翻，很多没翻完。翻译只是为了锻炼自己的英文水平。）以及笔记，[原网址](https://raytracing.github.io/books/RayTracingInOneWeekend.html)。原版英文其实十分简单，建议看原版。如有错误的地方，可以发邮件给俺，一起探讨探讨ヾ(≧▽≦*)o。俺的邮箱：liu_texwood5082@foxmail.com
 
 [TOC]
 
@@ -48,9 +48,62 @@
 
 ### 3.3 有关颜色的Utility Functions
 
+使用我们新创建的`vec3`类，我们可以创建一个十分实用的函数用于将单个像素的颜色输出至标准输出流。
+
+```C++
+#ifndef COLOR_H
+#define COLOR_H
+
+#include "vec3.h"
+
+#include <iostream>
+
+void write_color(std::ostream &out, color pixel_color) {
+    // Write the translated [0,255] value of each color component.
+    out << static_cast<int>(255.999 * pixel_color.x()) << ' '
+        << static_cast<int>(255.999 * pixel_color.y()) << ' '
+        << static_cast<int>(255.999 * pixel_color.z()) << '\n';
+}
+
+#endif
+```
 
 
-* 之所以用255.999作为系数，可以考虑两种由于浮点精度造成的情况：0.999×255.0和1.0×256.0。由于我们颜色的范围为[0,255]，我们要从[0,1.0]的小数映射到[0,255]的整数。如果是0.999×255.0，我们将得到254，如果是1.0×256.0我们将得到256，显然都不是我们想得到的255，所以使用255.999防止错误。
+
+* 注：之所以用255.999作为系数，可以考虑两种由于浮点精度造成的情况：0.999×255.0和1.0×256.0。由于我们颜色的范围为[0,255]，我们要从[0,1.0]的小数映射到[0,255]的整数。如果是0.999×255.0，我们将得到254，如果是1.0×256.0我们将得到256，显然都不是我们想得到的255，所以使用255.999防止错误。
+
+现在我们可以更改我们的main函数了：
+
+```C++
+#include "color.h"
+#include "vec3.h"
+
+#include <iostream>
+
+int main() {
+
+    // Image
+
+    const int image_width = 256;
+    const int image_height = 256;
+
+    // Render
+
+    std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+
+    for (int j = image_height-1; j >= 0; --j) {
+        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
+        for (int i = 0; i < image_width; ++i) {
+            color pixel_color(double(i)/(image_width-1), double(j)/(image_height-1), 0.25);
+            write_color(std::cout, pixel_color);
+        }
+    }
+
+    std::cerr << "\nDone.\n";
+}
+```
+
+
 
 ## 4. 射线、一个简单的相机、以及背景
 
